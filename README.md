@@ -40,7 +40,11 @@
 
 ### 第三步：初次运行与配置
 
-1. 双击运行 `gui.pyw`。
+1. 运行 `gui.pyw`：
+   - 正常情况下直接 **双击** 即可运行。
+   - 如果双击没有反应或用记事本打开了，请右键点击 `gui.pyw` -> 选择 **“打开方式”** -> 选择 **“Python (default windowed)”**。
+   
+   ![打开方式演示](open_method.png)
 2. 在弹出的图形界面中点击 **“API 接口设置”**：
    - 填入你刚才准备好的 `AI API Key`、`AI Base URL`、`AI Model Name`。
    - 填入你的 `Telegram Bot Token` 和 `Your Telegram User ID`。
