@@ -48,7 +48,8 @@
    - 如果双击没有反应或用记事本打开了，请右键点击 `gui.pyw` -> 选择 **“打开方式”** -> 选择 **“Python (default windowed)”**。
    - 💡 **提示**：如果在“打开方式”里找不到 Python 选项，说明你**还没安装 Python**！请一定要先看上面的【第二步：配置运行环境】去安装它。
    
-   ![打开方式演示](open_method.png)
+   ![打开方式演示]<img width="1696" height="993" alt="image" src="https://github.com/user-attachments/assets/fa14c8b5-cc1b-45ee-8b24-f2ff95f2d852" />
+()
 2. 在弹出的图形界面中点击 **“API 接口设置”**：
    - 填入你刚才准备好的 `AI API Key`、`AI Base URL`、`AI Model Name`。
    - 填入你的 `Telegram Bot Token` 和 `Your Telegram User ID`。
