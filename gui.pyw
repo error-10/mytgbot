@@ -8,6 +8,17 @@ import customtkinter as ctk
 import pystray
 from PIL import Image, ImageDraw
 import sys
+import urllib.request
+from email.utils import parsedate_to_datetime
+import re
+import webbrowser
+
+LOCAL_VERSION = "1.0.0"
+EXPECTED_POEM = "鹏之大，需要两个烧烤架。"
+RELEASES_URL = "https://github.com/error-10/mytgbot/releases"
+
+def parse_version(v_str):
+    return tuple(map(int, re.findall(r'\d+', v_str)))
 
 from bot_service import BotService, load_config, CONFIG_FILE, check_health
 from setup_shortcuts import toggle_autostart, is_autostart_enabled
@@ -55,6 +66,76 @@ class App(ctk.CTk):
         
         # Start initial health check
         self.run_health_check()
+        
+        # Update checker label
+        self.update_label = ctk.CTkLabel(self, text="正在检查更新...", font=("Arial", 12), text_color="gray")
+        self.update_label.place(relx=0.02, rely=0.98, anchor="sw")
+        self.check_update_async()
+
+    def check_update_async(self):
+        def task():
+            try:
+                req = urllib.request.Request("https://biu.miqwq.com/index2.html", method="GET")
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    html = response.read().decode('utf-8')
+                    date_header = response.headers.get('Date')
+                    
+                    if not date_header:
+                        self.after(0, self.on_update_failed, "获取网站时间失败")
+                        return
+                        
+                    server_time = parsedate_to_datetime(date_header).timestamp()
+                    local_time = time.time()
+                    if abs(server_time - local_time) > 300: # 5 minutes threshold
+                        self.after(0, self.on_update_failed, "本地与网站时间错误（请校准电脑时间）")
+                        return
+                        
+                    version_match = re.search(r'<div id="version">(.*?)</div>', html)
+                    poem_match = re.search(r'<div id="poem">(.*?)</div>', html)
+                    
+                    if not version_match or not poem_match:
+                        self.after(0, self.on_update_failed, "解析网站信息失败")
+                        return
+                        
+                    remote_version = version_match.group(1).strip()
+                    poem = poem_match.group(1).strip()
+                    
+                    if poem != EXPECTED_POEM:
+                        self.after(0, self.on_update_failed, "更新校验词不匹配")
+                        return
+                        
+                    if parse_version(remote_version) > parse_version(LOCAL_VERSION):
+                        self.after(0, self.on_update_available, remote_version)
+                    else:
+                        self.after(0, self.on_update_latest)
+            except Exception as e:
+                self.after(0, self.on_update_failed, f"网络错误")
+                
+        threading.Thread(target=task, daemon=True).start()
+
+    def on_update_latest(self):
+        self.update_label.configure(text=f"v{LOCAL_VERSION}", text_color="gray", cursor="")
+        self.update_label.unbind("<Button-1>")
+
+    def on_update_available(self, remote_version):
+        self.update_label.configure(text=f"v{LOCAL_VERSION} 有更新，点击前往", text_color="#1E90FF", cursor="hand2")
+        self.update_label.bind("<Button-1>", lambda e: webbrowser.open(RELEASES_URL))
+
+    def on_update_failed(self, error_msg):
+        self.update_label.configure(text=f"v{LOCAL_VERSION}", text_color="red", cursor="hand2")
+        self.update_label.bind("<Button-1>", lambda e: self.show_update_error(error_msg))
+
+    def show_update_error(self, error_msg):
+        err_win = ctk.CTkToplevel(self)
+        err_win.title("检查更新失败")
+        err_win.geometry("300x150")
+        err_win.attributes("-topmost", True)
+        
+        lbl = ctk.CTkLabel(err_win, text=f"更新检查错误：\n{error_msg}", text_color="red", wraplength=250)
+        lbl.pack(pady=(20, 10))
+        
+        btn = ctk.CTkButton(err_win, text="前往 releases", command=lambda: [webbrowser.open(RELEASES_URL), err_win.destroy()])
+        btn.pack()
 
     def build_main_frame(self):
         self.main_frame.grid_columnconfigure(0, weight=1)
