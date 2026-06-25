@@ -80,11 +80,11 @@ class BotService:
         self.app = None
         self.running = False
 
-    def get_intent(self, user_input: str, api_key: str) -> str:
+    def get_intent(self, user_input: str, api_key: str, base_url: str, model: str) -> str:
         try:
-            client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com/v1")
+            client = OpenAI(api_key=api_key, base_url=base_url)
             response = client.chat.completions.create(
-                model="deepseek-chat",
+                model=model,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_input}
@@ -93,7 +93,7 @@ class BotService:
             )
             return response.choices[0].message.content.strip().upper()
         except Exception as e:
-            logger.error(f"Error calling DeepSeek API: {e}")
+            logger.error(f"Error calling AI API: {e}")
             return "UNKNOWN"
 
     def set_system_volume(self, volume_level: int):
@@ -250,12 +250,15 @@ public class Audio {{
             return
             
         logger.info(f"Received command: {text}")
-        api_key = config.get("deepseek_api_key", "")
+        api_key = config.get("ai_api_key", config.get("deepseek_api_key", ""))
+        base_url = config.get("ai_base_url", "https://api.deepseek.com/v1")
+        model = config.get("ai_model", "deepseek-chat")
+        
         if not api_key:
-            await update.message.reply_text("未配置 DeepSeek API Key。")
+            await update.message.reply_text("未配置 AI 大模型 API Key。")
             return
 
-        intent = self.get_intent(text, api_key)
+        intent = self.get_intent(text, api_key, base_url, model)
         logger.info(f"Classified Intent: {intent}")
         
         response = self.execute_command(intent, config)

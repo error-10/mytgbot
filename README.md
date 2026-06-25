@@ -5,7 +5,7 @@
 
 ## 🌟 核心功能
 
-- **🤖 自然语言理解**：内置接入 DeepSeek大模型 意图识别，你说“帮我关机”、“声音太吵了”、“截个图看看”它都能听懂。
+- **🤖 自然语言理解**：内置接入任何兼容 OpenAI 格式的大模型 API（默认配置 DeepSeek），你说“帮我关机”、“声音太吵了”、“截个图看看”它都能听懂。
 - **🔓 物理级锁屏解锁**：独家自研 C++ Credential Provider（凭据提供程序），支持在 Windows 锁屏界面接收 Telegram 远程指令，瞬间强行注入密码完成解锁（哪怕电脑刚开机停在锁屏界面也能秒解）。
 - **📸 屏幕监控**：一键获取当前电脑屏幕的实时截图。
 - **🔌 电源及系统管理**：支持关机、重启、睡眠、静音、精确调节音量（如“音量调到30%”）。
@@ -23,9 +23,9 @@
    - 按照提示为你的机器人起名，并获取类似 `123456789:ABCDefg_hIjkLmnopQRstuvWXYZ` 的 **Bot Token**。
 2. **获取你的 Telegram 账号 ID (User ID)**
    - 在 Telegram 中搜索 `@userinfobot`，点击 Start，它会回复你的 ID（一串纯数字，例如 `12345678`）。记录下来，这用于权限白名单。
-3. **申请 DeepSeek API Key**
-   - 访问 [DeepSeek 开放平台](https://platform.deepseek.com/) 注册账号。
-   - 充值并生成一个 API Key（格式为 `sk-xxxxxx`）。
+3. **准备大模型 API Key**
+   - 你可以使用 DeepSeek、智谱、阿里云或者原版 OpenAI 的 API。
+   - 获取你的 API Key（例如 `sk-xxxxxx`），以及接口地址（Base URL）和模型名称。
 
 ### 第二步：配置运行环境
 
@@ -41,7 +41,8 @@
 
 1. 双击运行 `gui.pyw`。
 2. 在弹出的图形界面中点击 **“API 接口设置”**：
-   - 填入你刚才申请的 `DeepSeek API Key`、`Telegram Bot Token` 和 `Your Telegram User ID`。
+   - 填入你刚才准备好的 `AI API Key`、`AI Base URL`、`AI Model Name`。
+   - 填入你的 `Telegram Bot Token` 和 `Your Telegram User ID`。
    - 点击保存，此时机器人会自动开始运行，并在系统右下角托盘显示。
 3. （可选）勾选主界面的 **“开启最高权限开机自启”**，这样以后每次登录 Windows 后，它都会在后台静默运行。
 

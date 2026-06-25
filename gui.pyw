@@ -94,29 +94,41 @@ class App(ctk.CTk):
         title_label = ctk.CTkLabel(self.settings_frame, text="API 接口设置", font=("Arial", 22, "bold"))
         title_label.grid(row=0, column=0, pady=(40, 20))
         
-        self.ds_label = ctk.CTkLabel(self.settings_frame, text="DeepSeek API Key:")
+        self.ds_label = ctk.CTkLabel(self.settings_frame, text="AI API Key (OpenAI 格式):")
         self.ds_label.grid(row=1, column=0, sticky="w", padx=20)
         self.ds_entry = ctk.CTkEntry(self.settings_frame, width=360, show="*")
         self.ds_entry.grid(row=2, column=0, padx=20, pady=5)
-        self.ds_entry.insert(0, self.config.get("deepseek_api_key", ""))
+        self.ds_entry.insert(0, self.config.get("ai_api_key", self.config.get("deepseek_api_key", "")))
+        
+        self.url_label = ctk.CTkLabel(self.settings_frame, text="AI Base URL:")
+        self.url_label.grid(row=3, column=0, sticky="w", padx=20, pady=(10, 0))
+        self.url_entry = ctk.CTkEntry(self.settings_frame, width=360)
+        self.url_entry.grid(row=4, column=0, padx=20, pady=5)
+        self.url_entry.insert(0, self.config.get("ai_base_url", "https://api.deepseek.com/v1"))
+        
+        self.model_label = ctk.CTkLabel(self.settings_frame, text="AI Model Name:")
+        self.model_label.grid(row=5, column=0, sticky="w", padx=20, pady=(10, 0))
+        self.model_entry = ctk.CTkEntry(self.settings_frame, width=360)
+        self.model_entry.grid(row=6, column=0, padx=20, pady=5)
+        self.model_entry.insert(0, self.config.get("ai_model", "deepseek-chat"))
         
         self.tg_label = ctk.CTkLabel(self.settings_frame, text="Telegram Bot Token:")
-        self.tg_label.grid(row=3, column=0, sticky="w", padx=20, pady=(10, 0))
+        self.tg_label.grid(row=7, column=0, sticky="w", padx=20, pady=(10, 0))
         self.tg_entry = ctk.CTkEntry(self.settings_frame, width=360, show="*")
-        self.tg_entry.grid(row=4, column=0, padx=20, pady=5)
+        self.tg_entry.grid(row=8, column=0, padx=20, pady=5)
         self.tg_entry.insert(0, self.config.get("telegram_bot_token", ""))
         
         self.uid_label = ctk.CTkLabel(self.settings_frame, text="Your Telegram User ID:")
-        self.uid_label.grid(row=5, column=0, sticky="w", padx=20, pady=(10, 0))
+        self.uid_label.grid(row=9, column=0, sticky="w", padx=20, pady=(10, 0))
         self.uid_entry = ctk.CTkEntry(self.settings_frame, width=360)
-        self.uid_entry.grid(row=6, column=0, padx=20, pady=5)
+        self.uid_entry.grid(row=10, column=0, padx=20, pady=5)
         self.uid_entry.insert(0, self.config.get("telegram_user_id", ""))
         
         save_btn = ctk.CTkButton(self.settings_frame, text="保存设置", command=self.save_config)
-        save_btn.grid(row=7, column=0, pady=(30, 10))
+        save_btn.grid(row=11, column=0, pady=(30, 10))
         
         back_btn = ctk.CTkButton(self.settings_frame, text="返回主菜单", fg_color="gray", hover_color="darkgray", command=self.slide_to_main_from_settings)
-        back_btn.grid(row=8, column=0, pady=10)
+        back_btn.grid(row=12, column=0, pady=10)
 
     def build_auth_frame(self):
         self.auth_frame.grid_columnconfigure(0, weight=1)
@@ -214,7 +226,10 @@ class App(ctk.CTk):
 
     def save_config(self):
         new_config = {
-            "deepseek_api_key": self.ds_entry.get().strip(),
+            "ai_api_key": self.ds_entry.get().strip(),
+            "ai_base_url": self.url_entry.get().strip(),
+            "ai_model": self.model_entry.get().strip(),
+            "deepseek_api_key": self.ds_entry.get().strip(), # Backward compat
             "telegram_bot_token": self.tg_entry.get().strip(),
             "telegram_user_id": self.uid_entry.get().strip(),
             "windows_username": self.win_usr_entry.get().strip(),
