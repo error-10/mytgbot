@@ -58,7 +58,10 @@ def check_health(token: str, api_key: str) -> str:
     return "正常"
 
 SYSTEM_PROMPT = """You are a natural language command interpreter for a Windows computer.
-Your ONLY job is to classify the user's intent into exactly ONE of the following keywords:
+Your ONLY job is to classify the user's intent into exactly ONE of the following keywords.
+Do not provide any conversational text, explanations, or markdown formatting. ONLY output the exact keyword and nothing else.
+
+Keywords:
 - SHUTDOWN (for shutting down the PC)
 - RESTART (for restarting the PC)
 - SLEEP (for putting the PC to sleep)
@@ -67,13 +70,13 @@ Your ONLY job is to classify the user's intent into exactly ONE of the following
 - MUTE (for muting or toggling the computer's volume)
 - LOCK_SCREEN (for locking the Windows screen)
 - UNLOCK (for authorizing to unlock the Windows lock screen)
+- SCREENSHOT (for capturing the current screen/taking a screenshot)
 - HELP (for asking what the bot can do, available commands, features, etc.)
 - VOLUME_UP (for increasing the system volume slightly)
 - VOLUME_DOWN (for decreasing the system volume slightly)
 - VOLUME_MAX (for setting the volume to 100%)
 - VOLUME_SET:X (for setting the volume to a specific percentage X, where X is 0-100. Example: VOLUME_SET:30)
-
-Do NOT provide any explanations, conversational text, or punctuation. ONLY output the exact keyword."""
+- UNKNOWN (if the intent is unclear or not one of the above)"""
 
 class BotService:
     def __init__(self):
@@ -91,7 +94,33 @@ class BotService:
                 ],
                 temperature=0.0
             )
-            return response.choices[0].message.content.strip().upper()
+            content = response.choices[0].message.content.strip().upper()
+            
+            # Remove any markdown code block formatting that some models add
+            content = content.replace("```", "").replace("TEXT", "").replace("MARKDOWN", "").strip()
+            
+            import re
+            match = re.search(r"VOLUME_SET:\s*(\d+)", content)
+            if match:
+                return f"VOLUME_SET:{match.group(1)}"
+                
+            keywords = [
+                "SHUTDOWN", "RESTART", "SLEEP", "CLOSE_ALL_WINDOWS", 
+                "MINIMIZE_ALL_WINDOWS", "MUTE", "LOCK_SCREEN", "UNLOCK",
+                "SCREENSHOT", "HELP", "VOLUME_UP", "VOLUME_DOWN", "VOLUME_MAX"
+            ]
+            
+            # First try exact match
+            for kw in keywords:
+                if content == kw:
+                    return kw
+                    
+            # Fallback to substring match for chatty models
+            for kw in keywords:
+                if kw in content:
+                    return kw
+                    
+            return "UNKNOWN"
         except Exception as e:
             logger.error(f"Error calling AI API: {e}")
             return "UNKNOWN"
