@@ -16,6 +16,7 @@ import webbrowser
 LOCAL_VERSION = "1.0.0"
 EXPECTED_POEM = "鹏之大，需要两个烧烤架。"
 RELEASES_URL = "https://github.com/error-10/mytgbot/releases"
+AUTHOR_URL = "https://miqwq.com/index.php/%e5%91%8a%e5%88%ab%e7%b9%81%e7%90%90%ef%bc%81telegram-pc-controller%ef%bc%9a%e4%b8%93%e4%b8%ba%e6%9e%81%e8%87%b4%e6%96%b9%e4%be%bf%e8%80%8c%e7%94%9f%e7%9a%84-windows-%e8%bf%9c%e7%a8%8b%e6%8e%a7/"
 
 def parse_version(v_str):
     return tuple(map(int, re.findall(r'\d+', v_str)))
@@ -70,6 +71,12 @@ class App(ctk.CTk):
         # Update checker label
         self.update_label = ctk.CTkLabel(self, text="正在检查更新...", font=("Arial", 12), text_color="gray")
         self.update_label.place(relx=0.02, rely=0.98, anchor="sw")
+        
+        # Author signature
+        self.author_label = ctk.CTkLabel(self, text="by 一条橙鱼", font=("Arial", 12), text_color="#1E90FF", cursor="hand2")
+        self.author_label.place(relx=0.98, rely=0.98, anchor="se")
+        self.author_label.bind("<Button-1>", lambda e: webbrowser.open(AUTHOR_URL))
+        
         self.check_update_async()
 
     def check_update_async(self):
